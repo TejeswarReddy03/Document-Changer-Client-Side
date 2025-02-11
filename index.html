@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download Modified Document</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inject VBA Macro into DOCX</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <div class="container">
-        <h1>Download Modified Office Document</h1>
-        <p>Click the button below to download the modified document.</p>
-        <button id="download-btn">Download Modified Document</button>
-    </div>
-
-    <script src="script.js"></script>
-
+  <div class="container">
+    <h1>Inject VBA Macro into DOCX</h1>
+    <p>Select a DOCX file (macro-free) to inject the VBA macro automatically.</p>
+    <input type="file" id="docxInput" accept=".docx">
+    <br>
+    <button id="processBtn">Inject Macro & Download DOCM</button>
+    <p id="status"></p>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
